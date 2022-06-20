@@ -9,27 +9,24 @@ const allowedHttpMethods = [
     // 'PUT',
     // 'CONNECT',
     // 'GET',
-]
+];
 
-const checkAllowedMethods : RequestHandler = (req, res, next) => {
+const checkAllowedMethods: RequestHandler = (req, res, next) => {
     if (!allowedHttpMethods.includes(req.method)) {
-        return res.sendStatus(405)
+        return res.sendStatus(405);
     }
-    next()
-}
+    next();
+};
 
-const notFoundHandler : RequestHandler = (_req, res, _next) => res.sendStatus(404)
+const notFoundHandler: RequestHandler = (_req, res, _next) =>
+    res.sendStatus(404);
 
-const errorHandler: ErrorRequestHandler = (err , _req, res, next) => {
+const errorHandler: ErrorRequestHandler = (err, _req, res, next) => {
     console.error(err);
     if (err instanceof CustomError) {
-        return res.status(err.status).send(err.message)
+        return res.status(err.status).send(err.message);
     }
-    return res.sendStatus(500)
-}
+    return res.sendStatus(500);
+};
 
-export {
-    checkAllowedMethods,
-    notFoundHandler,
-    errorHandler,
-}
+export { checkAllowedMethods, notFoundHandler, errorHandler };
