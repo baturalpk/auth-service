@@ -1,3 +1,10 @@
+# Output of TypeScript compiler build
+build/
+
+# Editor and IDE files
+.vscode/
+.idea/
+
 # Logs
 logs
 *.log
