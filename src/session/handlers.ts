@@ -5,11 +5,15 @@ import { EndUserModeOn, NodeEnv } from '../config.js';
 import { CustomError } from '../errors.js';
 import store from './store.js';
 
-const TransientIdCookie = 'TID';
-const SessionIdCookie = 'SID';
+const TransientIdCookie = 'tid';
+const SessionIdCookie = 'sid';
 
 const NewSession: RequestHandler = async (req, res, next) => {
     try {
+        // Present "only_via_cookies" flag to NOT return
+        // authorization identifiers in response body.
+        const { only_via_cookie } = req.query;
+
         const identity = req.identity;
         if (identity === undefined) {
             return res.sendStatus(500);
@@ -27,24 +31,26 @@ const NewSession: RequestHandler = async (req, res, next) => {
             secure: NodeEnv !== 'development',
         };
 
+        const body = `{
+                "${TransientIdCookie}": "${tid}",
+                "${SessionIdCookie}": "${sid}"
+            }`;
+
         return res
             .cookie(TransientIdCookie, tid, cookieOpts)
             .cookie(SessionIdCookie, sid, cookieOpts)
-            .sendStatus(200);
+            .json(only_via_cookie !== undefined ? {} : JSON.parse(body));
     } catch (error) {
         next(error);
     }
 };
 
-const ValidateSessionError = new CustomError(
-    401,
-    'invalid and/or expired session'
-);
+const ValidateSessionError = new CustomError(401, 'invalid and/or expired session');
 
 const ValidateSession: RequestHandler = async (req, res, next) => {
     try {
-        const tid = req.cookies[TransientIdCookie];
-        const sid = req.cookies[SessionIdCookie];
+        const tid = req.cookies[TransientIdCookie] ?? req.query[TransientIdCookie];
+        const sid = req.cookies[SessionIdCookie] ?? req.query[SessionIdCookie];
 
         if (tid === undefined || sid === undefined) {
             throw ValidateSessionError;
@@ -68,7 +74,7 @@ const ValidateSession: RequestHandler = async (req, res, next) => {
 
 const DestroySession: RequestHandler = async (req, res, next) => {
     try {
-        const tid = req.cookies[TransientIdCookie];
+        const tid = req.cookies[TransientIdCookie] ?? req.query[TransientIdCookie];
         await store.Remove(tid);
         return res.sendStatus(204);
     } catch (error) {
