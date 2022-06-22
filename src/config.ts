@@ -1,3 +1,6 @@
+import { readFileSync } from 'fs';
+import path from 'path';
+
 // In case of integration with API Gateway or similar, this mode must be explicitly turned off
 export const EndUserModeOn = mapEnvAsBool('END_USER_MODE_ON') ?? true;
 
@@ -5,6 +8,11 @@ export const NodeEnv = mustMapEnv('NODE_ENV');
 
 export const Server = {
     Host: process.env.HOST ?? '0.0.0.0',
+    TLS: {
+        Active: mapEnvAsBool('TLS_ACTIVE') ?? false,
+        Cert: mustReadCertFile(),
+        Key: mustReadKeyFile(),
+    },
     Port: mustMapEnvAsNum('PORT'),
 };
 
@@ -35,4 +43,14 @@ function mapEnvAsBool(key: string): boolean | undefined {
     if (val === 'true') return true;
     if (val === 'false') return false;
     else return undefined;
+}
+
+function mustReadCertFile(): Buffer {
+    const certPath = mustMapEnv('TLS_CERT_PATH');
+    return readFileSync(path.normalize(certPath));
+}
+
+function mustReadKeyFile(): Buffer {
+    const keyPath = mustMapEnv('TLS_KEY_PATH');
+    return readFileSync(path.normalize(keyPath));
 }
