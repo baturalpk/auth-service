@@ -82,8 +82,19 @@ const DestroySession: RequestHandler = async (req, res, next) => {
     }
 };
 
+const TerminateSiblingSessions: RequestHandler = async (req, res, next) => {
+    try {
+        const tid = req.cookies[TransientIdCookie] ?? req.query[TransientIdCookie];
+        await store.RemoveRelatedKeys(tid);
+        return res.sendStatus(204);
+    } catch (err) {
+        next(err);
+    }
+};
+
 export default {
     NewSession,
     ValidateSession,
     DestroySession,
+    TerminateSiblingSessions,
 };

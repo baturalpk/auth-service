@@ -7,5 +7,6 @@ const router = Router();
 router.post('/new', VerifyIdentity, handlers.NewSession);
 router.post('/validate', handlers.ValidateSession);
 router.post('/destroy', handlers.DestroySession);
+router.post('/destroy/all', handlers.TerminateSiblingSessions);
 
 export default router;

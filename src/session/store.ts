@@ -17,14 +17,10 @@ client.on('error', err => {
 
 await client.connect();
 
-const Save = async (
-    key: string,
-    id: string,
-    sessionId: string,
-    email: string
-) => {
+const Save = async (key: string, id: string, sessionId: string, email: string) => {
     await client
         .multi()
+        .sAdd(id, key)
         .hSet(key, [FieldId, id, FieldSessionId, sessionId, FieldEmail, email])
         .expire(key, TTL, 'LT')
         .exec();
@@ -51,9 +47,18 @@ const Remove = async (key: string) => {
     await client.del(key);
 };
 
+const RemoveRelatedKeys = async (key: string) => {
+    const fields = await client.hGetAll(key);
+    const keys = await client.sMembers(fields[FieldId]);
+    keys.forEach(async key => {
+        await client.del(key);
+    });
+};
+
 export default {
     TTL,
     Save,
     RetrieveByKey,
     Remove,
+    RemoveRelatedKeys,
 };
