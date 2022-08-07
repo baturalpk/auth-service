@@ -17,6 +17,8 @@ client.on('error', err => {
 
 await client.connect();
 
+export const DisconnectRedis = async () => await client.disconnect();
+
 const Save = async (key: string, id: string, sessionId: string, email: string) => {
     await client
         .multi()

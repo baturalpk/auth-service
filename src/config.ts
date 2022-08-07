@@ -8,11 +8,7 @@ export const NodeEnv = mustMapEnv('NODE_ENV');
 
 export const Server = {
     Host: process.env.HOST ?? '0.0.0.0',
-    TLS: {
-        Active: mapEnvAsBool('TLS_ACTIVE') ?? false,
-        Cert: mustReadCertFile(),
-        Key: mustReadKeyFile(),
-    },
+    TLS: readTLSConfig(),
     Port: mustMapEnvAsNum('PORT'),
 };
 
@@ -43,6 +39,15 @@ function mapEnvAsBool(key: string): boolean | undefined {
     if (val === 'true') return true;
     if (val === 'false') return false;
     else return undefined;
+}
+
+function readTLSConfig() {
+    const active = mapEnvAsBool('TLS_ACTIVE') ?? false;
+    return {
+        Active: active,
+        Cert: active ? mustReadCertFile() : undefined,
+        Key: active ? mustReadKeyFile() : undefined,
+    };
 }
 
 function mustReadCertFile(): Buffer {
