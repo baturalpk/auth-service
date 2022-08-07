@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import PrismaClient from '@prisma/client';
 import { hash } from 'bcrypt';
 import { RequestHandler } from 'express';
 import { CustomError } from '../errors.js';
@@ -10,10 +10,7 @@ const CreateIdentity: RequestHandler = async (req, res, next) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
-            throw new CustomError(
-                400,
-                'missing fields: "email" and/or "password"'
-            );
+            throw new CustomError(400, 'missing fields: "email" and/or "password"');
         }
         const hashedPassword = await hash(password, BcryptSaltRounds);
 
@@ -22,7 +19,7 @@ const CreateIdentity: RequestHandler = async (req, res, next) => {
         });
         return res.sendStatus(201);
     } catch (err) {
-        if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        if (err instanceof PrismaClient.Prisma.PrismaClientKnownRequestError) {
             if (err.code === 'P2002') {
                 next(new CustomError(400, 'existing email'));
             }

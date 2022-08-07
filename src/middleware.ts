@@ -18,8 +18,7 @@ const checkAllowedMethods: RequestHandler = (req, res, next) => {
     next();
 };
 
-const notFoundHandler: RequestHandler = (_req, res, _next) =>
-    res.sendStatus(404);
+const notFoundHandler: RequestHandler = (_req, res, _next) => res.sendStatus(404);
 
 const errorHandler: ErrorRequestHandler = (err, _req, res, next) => {
     console.error(err);

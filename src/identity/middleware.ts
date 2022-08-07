@@ -3,19 +3,13 @@ import { RequestHandler } from 'express';
 import { CustomError } from '../errors.js';
 import { prisma } from '../prisma/client.js';
 
-const VerifyIdentityError = new CustomError(
-    400,
-    'email or password is incorrect'
-);
+const VerifyIdentityError = new CustomError(400, 'email or password is incorrect');
 
 const VerifyIdentity: RequestHandler = async (req, res, next) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
-            throw new CustomError(
-                400,
-                'missing fields: "email" and/or "password"'
-            );
+            throw new CustomError(400, 'missing fields: "email" and/or "password"');
         }
 
         const identity = await prisma.identity.findUnique({
